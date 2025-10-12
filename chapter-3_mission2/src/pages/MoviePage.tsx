@@ -1,44 +1,20 @@
-import { useEffect, useState } from "react";
-import { type MovieResponse, type Movie } from "../types/movie";
-import axios from "axios";
+import { useState } from "react";
+import { type MovieResponse } from "../types/movie";
 import MovieCard from "../components/MovieCard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { Outlet } from "react-router-dom";
+import { useCustomFetch } from "../hooks/useCustomFetch";
 
 export default function MoviePage() {
-    const [movies, setMovies] = useState<Movie[]>([]);
-
-    const [isPending, setIsPending] = useState(false);
-    
-    const [isError, setIsError] = useState(false);
 
     const [page, setPage] = useState(1);
 
     const { category, movieId } = useParams<{ category: string; movieId?: string }>();
-    
-    useEffect(() => {
-        const fetchMovies = async () => {
-            setIsPending(true);
-            try {
-              const {data} = await axios.get<MovieResponse>(
-                 `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=${page}`, {
-                     headers: {
-                         Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-                     },
-                 }
-              );
-            
-            setMovies(data.results);
-           } catch {
-            setIsError(true);
-           } finally {
-            setIsPending(false);
-           }
-        };
 
-        fetchMovies();
-    }, [page, category]);
+    const url = `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=${page}`;
+    
+    const { data, isLoading, isError } = useCustomFetch<MovieResponse>(url);
 
     if (isError) {
         return (
@@ -73,17 +49,17 @@ export default function MoviePage() {
                     {`>`}
                 </button>
             </div>
-            {isPending && (
+            {isLoading && (
                 <div className="flex items-center justify-center h-dvh">
                     <LoadingSpinner />
                 </div>
             )}
 
-            {!isPending && (
+            {!isLoading && (
                 <div className="p-10 grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 
                 lg:grid-cols-5 xl:grid-cols-6">
-                    {movies &&
-                    movies.map((movie) => (
+                    {data?.results &&
+                    data?.results.map((movie) => (
                         <MovieCard key={movie.id} movie={movie} category={category!} />
                     ))}
                 </div>

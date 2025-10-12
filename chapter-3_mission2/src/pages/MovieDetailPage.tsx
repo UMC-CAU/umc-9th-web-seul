@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useCustomFetch } from "../hooks/useCustomFetch";
 
 interface MovieDetail {
   id: number;
@@ -16,33 +15,10 @@ interface MovieDetail {
 
 export default function MovieDetailPage() {
   const { movieId } = useParams<{ movieId: string }>();
-  const [movie, setMovie] = useState<MovieDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchMovieDetail = async () => {
-      setIsLoading(true);
-      try {
-        const { data } = await axios.get<MovieDetail>(
-          `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`,
-          {
-            headers: {
-              Authorization: `Bearer ${import.meta.env.VITE_TMDB_KEY}`,
-            },
-          }
-        );
-        setMovie(data);
-      } catch {
-        setIsError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMovieDetail();
-  }, [movieId]);
+  const url = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`;
+  const { data: movie, isLoading, isError } = useCustomFetch<MovieDetail>(url);
 
   if (isLoading) return <div className="flex justify-center items-center h-screen text-xl">로딩 중...</div>;
   if (isError) return <div className="text-red-500 text-center mt-10">영화 정보를 불러오지 못했습니다.</div>;
