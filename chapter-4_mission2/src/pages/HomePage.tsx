@@ -9,7 +9,7 @@ const HomePage = () => {
     /*const {data, isPending, error} = useGetLpList({});*/
     const [search, setSearch] = useState("");
 
-    const {data:lps, isFetching, hasNextPage, isPending, fetchNextPage, isError} = 
+    const {data:lps, isFetching, hasNextPage, isPending, fetchNextPage} = 
     useGetInfiniteLpList(50, search, PAGINATION_ORDER.desc);
 
     const {ref, inView} = useInView({
