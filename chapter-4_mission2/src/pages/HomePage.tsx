@@ -4,13 +4,15 @@ import { PAGINATION_ORDER } from "../enums/common.ts";
 import { useInView } from "react-intersection-observer";
 import Card from "../components/LpCard/LpCard.tsx";
 import LpCardSkeletonList from "../components/LpCard/LpCardSkeletonList.tsx";
+import useDebounce from "../hooks/useDebounce.ts";
 
 const HomePage = () => {
     /*const {data, isPending, error} = useGetLpList({});*/
     const [search, setSearch] = useState("");
+    const debouncedValue = useDebounce(search, 300);
 
     const {data:lps, isFetching, hasNextPage, isPending, fetchNextPage} = 
-    useGetInfiniteLpList(50, search, PAGINATION_ORDER.desc);
+    useGetInfiniteLpList(50, debouncedValue, PAGINATION_ORDER.desc);
 
     const {ref, inView} = useInView({
         threshold: 0,
